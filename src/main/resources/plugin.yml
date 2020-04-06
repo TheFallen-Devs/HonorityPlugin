@@ -7,3 +7,8 @@ softdepend: [Skript]
 authors: [sleepylapis]
 description: Add "Honority" status in server. Honority status can be referenced in Skript, by using own statements. This plugin can work as addon on Skript.
 website: https://lapisblog.me
+commands:
+  honority:
+    description: "Honority management command added in HonorityPlugin."
+    aliases: [honor, fame]
+    usage: "please use /honority help (subcommand) for specific information about subcommand."

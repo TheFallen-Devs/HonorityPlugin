@@ -1,14 +1,17 @@
 package me.lapis.honorityplugin.honority;
 
-import me.lapis.honorityplugin.ColorfulConsole;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Async;
 
-import java.util.Dictionary;
-import java.util.UUID;
+import me.lapis.honorityplugin.ColorfulConsole;
 
 public class Honority {
-    Dictionary<UUID, Short> honorityDict;
+    HashMap<UUID, Short> honorityDict = new HashMap<UUID, Short>();
     short honority = 0;
     ColorfulConsole colorfulConsole;
 
@@ -38,8 +41,13 @@ public class Honority {
      * @return true if honority data is successfully saved. if not, return false.
      */
     public boolean SavePlayerHonority(UUID uuid){
-
-
+        this.colorfulConsole.console(this.colorfulConsole.debug, "Saving data of player" + uuid.toString());
+        try{
+            FileOutputStream fileOutputStream = new FileOutputStream("data/HonorityPlugin/"+uuid+"txt", false);
+        }catch (FileNotFoundException e){
+            this.colorfulConsole.console(this.colorfulConsole.error, "File not found!");
+            this.colorfulConsole.console(this.colorfulConsole.error, e.getMessage());
+        }
         return true;
     }
 
@@ -56,7 +64,6 @@ public class Honority {
         this.honorityDict.put(uuid, (short) 0);
 
         //FileIO : Create data file with given uuid
-        // 잠시 문서보고 공부하러감~
 
         return true;
     }

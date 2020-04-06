@@ -34,28 +34,16 @@ public final class HonorityPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
-            // put all code related to Skript here : Skript addon function
-            try {
-                getAddonInstance().loadClasses("me.lapis.honorityplugin", "skript");
-                this.colorfulConsole.console(colorfulConsole.info,"플러그인의 정보 파일을 불러옵니다...");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
-        /* [ 플러그인 정보 출력 ]
-         * 이 플러그인의 정보를 pluginDescription 을 통해 출력합니다.
-         */
-
-        this.colorfulConsole.console(colorfulConsole.info,"플러그인의 정보 파일을 불러옵니다...");
+        // Prints plugin information
+        this.colorfulConsole.console(colorfulConsole.info,"Loading plugin informations...");
         this.colorfulConsole.console(colorfulConsole.info, "====================================================");
         this.colorfulConsole.console(colorfulConsole.info, "Plugin Version : " + this.pluginDescription.getVersion());
         this.colorfulConsole.console(colorfulConsole.info, "Plugin API(Bukkit) Version : " + this.pluginDescription.getAPIVersion());
         this.colorfulConsole.console(colorfulConsole.info, "Plugin Authors : " + this.pluginDescription.getAuthors());
         this.colorfulConsole.console(colorfulConsole.info, "Plugin Website : " + this.pluginDescription.getWebsite());
         this.colorfulConsole.console(colorfulConsole.info, "====================================================");
-        this.colorfulConsole.console(colorfulConsole.info,"플러그인의 정보 파일을 불러왔습니다!");
+        this.colorfulConsole.console(colorfulConsole.info,"Successfully loaded plugin information!");
 
         /* [ 플러그인 이벤트 수신자 등록 ]
          * 이 플러그인의 이벤트 수신자 클래스인 me.lapis.firstplugin.EventManager 클래스를 버킷의 이벤트 수신자에 추가합니다.
@@ -90,6 +78,18 @@ public final class HonorityPlugin extends JavaPlugin {
                 else{
                     this.colorfulConsole.console(this.colorfulConsole.error, "Player " + p.getDisplayName() + "'s honority data occured error during ");
                 }
+            }
+        }
+
+
+
+        if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
+            // put all code related to Skript here : Skript addon function
+            try {
+                getAddonInstance().loadClasses("me.lapis.honorityplugin", "skript");
+                this.colorfulConsole.console(colorfulConsole.info,"플러그인의 정보 파일을 불러옵니다...");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
