@@ -28,6 +28,7 @@ public class ColorfulConsole {
 
     // log 유형별 값들
     public final String info = green + "[Info] " + white + "";
+    public final String log = yellow + "[log] " + gold + "";
     public final String warning = yellow + "[Warning] " + "";
     public final String error = dred + "[Error] " + red + "";
     public final String debug = dblue + "[Debug] " + blue + "";

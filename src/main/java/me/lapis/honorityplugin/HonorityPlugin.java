@@ -13,15 +13,20 @@ import java.util.Map;
 
 public final class HonorityPlugin extends JavaPlugin {
 
-    private static HonorityPlugin instance;
-    private static SkriptAddon addonInstance;
-
+    //variables for colored console
     private PluginDescriptionFile pluginDescription = this.getDescription();                            //get Plugin's description file
     private ColorfulConsole colorfulConsole = new ColorfulConsole(this.pluginDescription);              //get ConsoleSender & send colorized logs using it
 
-    HonorityCommandManager cmdManager = new HonorityCommandManager(this.colorfulConsole);       //Plugin's command manager class
-    HonorityEventManager eventManager = new HonorityEventManager(this.colorfulConsole);         //Plugin's event manager class
-    Honority honorityManager = new Honority(this.colorfulConsole);                                                  //Honority manager class
+    //variables for JavaPlugin
+    HonorityEventManager eventManager;
+    HonorityCommandManager cmdManager;
+
+    //variables for Honority feature
+    Honority honorityManager;
+
+    //variables for Skript Addon feature
+    private static HonorityPlugin instance;
+    private static SkriptAddon addonInstance;
 
     public HonorityPlugin() {
         if (instance == null) {
@@ -36,58 +41,75 @@ public final class HonorityPlugin extends JavaPlugin {
         // Plugin startup logic
 
         // Prints plugin information
-        this.colorfulConsole.console(colorfulConsole.info,"Loading plugin informations...");
+        this.colorfulConsole.console(colorfulConsole.log,"Loading plugin informations...");
         this.colorfulConsole.console(colorfulConsole.info, "====================================================");
         this.colorfulConsole.console(colorfulConsole.info, "Plugin Version : " + this.pluginDescription.getVersion());
         this.colorfulConsole.console(colorfulConsole.info, "Plugin API(Bukkit) Version : " + this.pluginDescription.getAPIVersion());
         this.colorfulConsole.console(colorfulConsole.info, "Plugin Authors : " + this.pluginDescription.getAuthors());
         this.colorfulConsole.console(colorfulConsole.info, "Plugin Website : " + this.pluginDescription.getWebsite());
         this.colorfulConsole.console(colorfulConsole.info, "====================================================");
-        this.colorfulConsole.console(colorfulConsole.info,"Successfully loaded plugin information!");
+        this.colorfulConsole.console(colorfulConsole.log,"Successfully loaded plugin information!");
 
-        /* [ 플러그인 이벤트 수신자 등록 ]
-         * 이 플러그인의 이벤트 수신자 클래스인 me.lapis.firstplugin.EventManager 클래스를 버킷의 이벤트 수신자에 추가합니다.
-         * */
+        /*
+        * [ Check Object ]
+        * Check if objects are same. <Debug>
+        */
+        //Initialize Honority Object
+        this.honorityManager = new Honority(this.colorfulConsole);
+        this.colorfulConsole.console(this.colorfulConsole.debug, "I have Honority object : " + this.honorityManager.toString());
 
-        this.colorfulConsole.console(colorfulConsole.info, "[EventRegistration] 플러그인의 이벤트 수신 메소드를 등록하는 중입니다...");
+        /* [ Register Event Manager class ]
+         * Register Event Manager class of this plugin(me.lapis.honorityplugin.HonorityEventManager.java).
+         */
+
+        //Initialize plugin's EventManager class
+        this.colorfulConsole.console(colorfulConsole.log, "[EventRegistration] Initializing EventManager...");
+        this.eventManager = new HonorityEventManager(this.colorfulConsole, this.honorityManager);
+        this.colorfulConsole.console(colorfulConsole.log, "[EventRegistration] Initialized!");
+
+        //Register EventManager class into plugin
+        this.colorfulConsole.console(colorfulConsole.log, "[EventRegistration] Registering EventManager class into plugin...");
         Bukkit.getPluginManager().registerEvents(this.eventManager, this);
-        this.colorfulConsole.console(colorfulConsole.info, "[EventRegistration] 플러그인의 이벤트 수신 메소드를 등록했습니다!");
+        this.colorfulConsole.console(colorfulConsole.log, "[EventRegistration] Successfully registerd EventManager class!");
 
-        /* [ 플러그인 커맨드 관리자 등록 ]
-         * 이 플러그인의 커맨드 관리자 클래스인 me.lapis.firstplugin.CommandManager 클래스를 이 플러그인의 명령어들의 수신자에 추가합니다.
-         * */
+        /* [ Register command manager class ]
+         * Register command manager class of this plugin(me.lapis.honorityplugin.HonorityCommandManager.java).
+         */
 
-        this.colorfulConsole.console(colorfulConsole.debug,  "[CommandRegistration] Initializing HonorityCommandManager class...");
+        //Initialize plugin's command manager class
+        this.colorfulConsole.console(colorfulConsole.log,  "[CommandRegistration] Initializing CommandManager...");
+        this.cmdManager = new HonorityCommandManager(this.colorfulConsole, this.honorityManager);
+        this.colorfulConsole.console(colorfulConsole.log,  "[CommandRegistration] Initialized!");
 
-        Map<String, Map<String, Object>> commandsMap = this.pluginDescription.getCommands();
-        this.colorfulConsole.console(colorfulConsole.debug,  "[CommandRegistration] Collecting commands Map keys");
-        for(String key: commandsMap.keySet()){
-            this.colorfulConsole.console(colorfulConsole.debug, "[CommandRegistration] key : " + key);
-            getCommand(key).setExecutor(this.cmdManager);
-        }
-
-        for(Player p: Bukkit.getServer().getOnlinePlayers()){
-            this.colorfulConsole.console(this.colorfulConsole.debug, "Found an online player " + p.getDisplayName() + " in server. Register player's honority data.");
-            boolean honorityLoadResult = this.honorityManager.LoadPlayerHonority(p.getUniqueId());
-            if(!honorityLoadResult){
-                this.colorfulConsole.console(this.colorfulConsole.error, "Player " + p.getDisplayName() + " does not have honority data file! creating new one...");
-                boolean honorityCreateResult = this.honorityManager.CreatePlayerHonority(p.getUniqueId());
-                if(honorityCreateResult){
-                    this.colorfulConsole.console(this.colorfulConsole.error, "Player " + p.getDisplayName() + "'s honority data successfully created and saved.");
-                }
-                else{
-                    this.colorfulConsole.console(this.colorfulConsole.error, "Player " + p.getDisplayName() + "'s honority data occured error during ");
-                }
+        //Register commandManager into commands
+        this.colorfulConsole.console(colorfulConsole.log,  "[CommandRegistration] Registering commands...");
+        for(String key: this.pluginDescription.getCommands().keySet()){
+            this.colorfulConsole.console(colorfulConsole.log, "[CommandRegistration] Registering `" + key + "` command...");
+            try{
+                getCommand(key).setExecutor(this.cmdManager);
+            }catch (NullPointerException e){
+                this.colorfulConsole.console(colorfulConsole.error, "[CommandRegistration] An Exception occured during registering command, " + key);
+                this.colorfulConsole.console(colorfulConsole.error, "[CommandRegistration] A command `" + key + "` seems invalid command! ");
+                this.colorfulConsole.console(colorfulConsole.error, e.getMessage());
+            }catch (Exception e){
+                this.colorfulConsole.console(colorfulConsole.error, "[CommandRegistration] An Exception occured during registering command, " + key);
+                this.colorfulConsole.console(colorfulConsole.error, e.getMessage());
             }
+            this.colorfulConsole.console(colorfulConsole.log, "[CommandRegistration] Done!");
         }
+        this.colorfulConsole.console(colorfulConsole.log,  "[CommandRegistration] Successfully registerd commands!");
 
+        /* [ Load Honority Datas ]
+         *  Load Honority Datas of currently online players
+         */
+        this.honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
 
 
         if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
             // put all code related to Skript here : Skript addon function
             try {
+                this.colorfulConsole.console(colorfulConsole.log,"Loading classes from me.lapis.honorityplugin.skript");
                 getAddonInstance().loadClasses("me.lapis.honorityplugin", "skript");
-                this.colorfulConsole.console(colorfulConsole.info,"플러그인의 정보 파일을 불러옵니다...");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -98,13 +120,11 @@ public final class HonorityPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        for(Player p: Bukkit.getServer().getOnlinePlayers()){
-            this.colorfulConsole.console(this.colorfulConsole.debug, "Found an online player " + p.getDisplayName() + " in server. Save player's honority data.");
-            boolean honoritySaveResult = this.honorityManager.SavePlayerHonority(p.getUniqueId());
-            if(!honoritySaveResult){
-                this.honorityManager.CreatePlayerHonority(p.getUniqueId());
-            }
-        }
+
+        /* [ Save Honority Datas ]
+         *  Save Honority Datas of currently online players
+         */
+        this.honorityManager.SaveAllHonorityInCollection(Bukkit.getOnlinePlayers());
     }
 
     /*

@@ -10,5 +10,4 @@ website: https://lapisblog.me
 commands:
   honority:
     description: "Honority management command added in HonorityPlugin."
-    aliases: [honor, fame]
     usage: "please use /honority help (subcommand) for specific information about subcommand."
