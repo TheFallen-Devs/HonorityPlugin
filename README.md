@@ -2,15 +2,11 @@
 Minecraft Bukkit plugin which adds one simple value, "honority"(same as honor) system in server.
 
 ## Commands
-/honority show (playername) : Shows honority value of given player.
-
-/honority set (playername) (value) : set player's honority value into given value.
-
-/honority reset (playername) : set player's honority value into initial value(normally, 0). this is an alias of /honority (playername) set 0
-
-/honority add (playername) (value) : add given value into player's honority value. you can add negative number, too. only integer can be used on value.
-
-/honority help (command) : show description about given command. you can put add, set, reset or add in (command).
+1. /honority show (playername) : Shows honority value of given player.
+2. /honority set (playername) (value) : set player's honority value into given value.
+3. /honority reset (playername) : set player's honority value into initial value(normally, 0). this is an alias of /honority (playername) set 0
+4. /honority add (playername) (value) : add given value into player's honority value. you can add negative number, too. only integer can be used on value.
+5. /honority help (command) : show description about given command. you can put add, set, reset or add in (command).
 
 Command usage video is [here](https://www.youtube.com/watch?v=t0xNXX55Bhg)
 
