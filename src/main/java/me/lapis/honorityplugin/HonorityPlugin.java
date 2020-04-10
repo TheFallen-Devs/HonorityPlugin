@@ -56,7 +56,7 @@ public final class HonorityPlugin extends JavaPlugin {
         */
         //Initialize Honority Object
         this.honorityManager = new Honority(this.colorfulConsole);
-        this.colorfulConsole.console(this.colorfulConsole.debug, "I have Honority object : " + this.honorityManager.toString());
+        //this.colorfulConsole.console(this.colorfulConsole.debug, "I have Honority object : " + this.honorityManager.toString());
 
         /* [ Register Event Manager class ]
          * Register Event Manager class of this plugin(me.lapis.honorityplugin.HonorityEventManager.java).
@@ -103,6 +103,7 @@ public final class HonorityPlugin extends JavaPlugin {
          *  Load Honority Datas of currently online players
          */
         this.honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
+        this.honorityManager.ShowHonorityOnAllPlayers(this, Bukkit.getOnlinePlayers());
 
 
         if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
@@ -125,6 +126,7 @@ public final class HonorityPlugin extends JavaPlugin {
          *  Save Honority Datas of currently online players
          */
         this.honorityManager.SaveAllHonorityInCollection(Bukkit.getOnlinePlayers());
+
     }
 
     /*

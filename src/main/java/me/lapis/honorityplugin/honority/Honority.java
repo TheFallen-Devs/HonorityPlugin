@@ -1,11 +1,17 @@
 package me.lapis.honorityplugin.honority;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import me.lapis.honorityplugin.ColorfulConsole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.plugin.Plugin;
 
 public class Honority {
     HashMap<UUID, Short> honorityDict = new HashMap<>();
@@ -82,19 +88,24 @@ public class Honority {
      * honority_value : (value)
      *
      * @return true if honority data is successfully loaded. if not, return false.
+     * @see Honority#LoadPlayerHonority for process of loading each file.
      */
     public boolean LoadAllHonorityInCollection(Collection<? extends Player> playerCollection){
         for(Player p: Bukkit.getServer().getOnlinePlayers()){
-            this.colorfulConsole.console(this.colorfulConsole.log, "[LoadAllHonority] Found an online player " + p.getDisplayName() + " in server. Register player's honority data.");
+            this.colorfulConsole.console(this.colorfulConsole.log, "[LoadAllHonority] Found an online player " + this.colorfulConsole.white + p.getDisplayName()
+                    + this.colorfulConsole.gold + " in server. Register player's honority data.");
             boolean honorityLoadResult = this.LoadPlayerHonority(p.getUniqueId());
             if(!honorityLoadResult){
-                this.colorfulConsole.console(this.colorfulConsole.error, "[LoadAllHonority] Player " + p.getDisplayName() + " does not have honority data file! creating new one...");
+                this.colorfulConsole.console(this.colorfulConsole.error, "[LoadAllHonority] Player " + p.getDisplayName()
+                        + " does not have honority data file! creating new one...");
                 boolean honorityCreateResult = this.CreatePlayerHonority(p.getUniqueId());
                 if(honorityCreateResult){
-                    this.colorfulConsole.console(this.colorfulConsole.error, "[LoadAllHonority] Player " + p.getDisplayName() + "'s honority data successfully created and saved.");
+                    this.colorfulConsole.console(this.colorfulConsole.error, "[LoadAllHonority] Player " + p.getDisplayName()
+                            + "'s honority data successfully created and saved.");
                 }
                 else{
-                    this.colorfulConsole.console(this.colorfulConsole.error, "[LoadAllHonority] Player " + p.getDisplayName() + "'s honority data occured error during ");
+                    this.colorfulConsole.console(this.colorfulConsole.error, "[LoadAllHonority] Player " + p.getDisplayName()
+                            + "'s honority data occured error during ");
                 }
             }
         }
@@ -128,36 +139,6 @@ public class Honority {
     }
 
     /**
-     * Save all honority datas which Honority object contains when this method called.
-     * Save data is located at data/HonorityPlugin/(uuid value).honor
-     *
-     * File contains content below:
-     * uuid : (uuid)
-     * honority_value : (value)
-     *
-     * @return true if honority data is successfully saved. if not, return false.
-     */
-    @Deprecated
-    public boolean SaveAllLoadedHonority(){
-        this.colorfulConsole.console(this.colorfulConsole.debug, "[SaveAllHonority] Saving all honority datas...");
-        ArrayList<Boolean> resultArrayList = new ArrayList<>();
-        for(UUID uuid : this.honorityDict.keySet()){
-            boolean result = this.SavePlayerHonority(uuid);
-            resultArrayList.add(result);
-            if(!result){
-                this.colorfulConsole.console(this.colorfulConsole.debug, "[SaveAllHonority] Found an error during saving honority data of player " + uuid.toString());
-            }
-        }
-        if(resultArrayList.contains(false)){
-            this.colorfulConsole.console(this.colorfulConsole.debug, "[SaveAllHonority] There was an error during honority data save.");
-            return false;
-        }else{
-            this.colorfulConsole.console(this.colorfulConsole.debug, "[SaveAllHonority] Successfully saved all honority data.");
-            return true;
-        }
-    }
-
-    /**
      * Save all honority datas of players in given argument.
      * @param playerCollection
      * Save data is located at data/HonorityPlugin/(uuid value).honor
@@ -167,6 +148,7 @@ public class Honority {
      * honority_value : (value)
      *
      * @return true if honority data is successfully saved. if not, return false.
+     * @see Honority#SavePlayerHonority for process of saving each file.
      */
     public boolean SaveAllHonorityInCollection(Collection<? extends Player> playerCollection){
         for(Player p: playerCollection){
@@ -233,6 +215,144 @@ public class Honority {
             return oldValue;
         } else {
           throw new ArithmeticException("New value of player's honority value is out of range!");
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public void ShowHonorityOnPlayer(Plugin plugin, Player player) {
+        this.colorfulConsole.console(this.colorfulConsole.log,"Applying honority data to players` nickname..");
+        try{
+            this.colorfulConsole.console(this.colorfulConsole.debug,"Player : " + player.getName());
+            Method getHandle = player.getClass().getMethod("getHandle");
+            Object entityPlayer = getHandle.invoke(player);
+            /*
+             * These methods are no longer needed, as we can just access the
+             * profile using handle.getProfile. Also, because we can just use
+             * the method, which will not change, we don't have to do any
+             * field-name look-ups.
+             */
+            boolean gameProfileExists = false;
+            // Some 1.7 versions had the GameProfile class in a different package
+            try {
+                Class.forName("net.minecraft.util.com.mojang.authlib.GameProfile");
+                gameProfileExists = true;
+            } catch (ClassNotFoundException ignored) {
+
+            }
+            try {
+                Class.forName("com.mojang.authlib.GameProfile");
+                gameProfileExists = true;
+            } catch (ClassNotFoundException ignored) {
+
+            }
+            this.colorfulConsole.console(this.colorfulConsole.debug,"Does GameProfile exists? : " + this.colorfulConsole.green + gameProfileExists);
+
+            String newName = player.getName() + this.colorfulConsole.gold + "\n명성도 : "
+                    + this.colorfulConsole.white + this.GetPlayerHonority(player.getUniqueId());
+            this.colorfulConsole.console(this.colorfulConsole.debug,"New name of the player : " + this.colorfulConsole.white + newName);
+
+            // Only 1.7+ servers will run this code
+            Object profile = entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
+            this.colorfulConsole.console(this.colorfulConsole.debug, "(Object)#profile : " + profile.toString());
+            Field ff = profile.getClass().getDeclaredField("name");
+            this.colorfulConsole.console(this.colorfulConsole.debug, "(Field)#ff (entityPlayer's declared field 'name' ) : " + ff.toString());
+            ff.setAccessible(true);
+            ff.set(entityPlayer, newName);
+
+            //Appply changed name
+            player.hidePlayer(plugin, player);
+            player.showPlayer(plugin, player);
+
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+            /*
+             * Merged all the exceptions. Less lines
+             */
+            this.colorfulConsole.console(this.colorfulConsole.error, "Cause :\n" +  e.getCause().getMessage() + "\nlog :\n" + e.getMessage());
+        }catch (Exception e) {
+            this.colorfulConsole.console(this.colorfulConsole.error, "Cause :\n" + e.getCause().getMessage() + "\nlog :\n" + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void ShowHonorityOnAllPlayers(Plugin plugin, Collection<? extends Player> playerCollection) {
+        this.colorfulConsole.console(this.colorfulConsole.log,"Applying honority data to players` nickname..");
+        for(Player player: playerCollection) {
+            this.ShowHonorityOnPlayer(plugin, player);
+        }
+    }
+
+    /*
+     * Code frome : https://bukkit.org/threads/reflection-change-playernametag-with-24-lines-of-code-without-scoreboards.439948/ (last code)
+     *
+     *  Works from 1.0+.
+     *
+     * @param name new name of the player
+     * @param player player to change the name of
+     */
+    @SuppressWarnings("unchecked")
+    public static void changeName(String name, Player player, Plugin plugin, Collection<? extends Player> playerCollection) {
+        try {
+            Method getHandle = player.getClass().getMethod("getHandle");
+            Object entityPlayer = getHandle.invoke(player);
+            /*
+             * These methods are no longer needed, as we can just access the
+             * profile using handle.getProfile. Also, because we can just use
+             * the method, which will not change, we don't have to do any
+             * field-name look-ups.
+             */
+            boolean gameProfileExists = false;
+            // Some 1.7 versions had the GameProfile class in a different package
+            try {
+                Class.forName("net.minecraft.util.com.mojang.authlib.GameProfile");
+                gameProfileExists = true;
+            } catch (ClassNotFoundException ignored) {
+
+            }
+            try {
+                Class.forName("com.mojang.authlib.GameProfile");
+                gameProfileExists = true;
+            } catch (ClassNotFoundException ignored) {
+
+            }
+            if (!gameProfileExists) {
+                /*
+                 * Only 1.6 and lower servers will run this code.
+                 *
+                 * In these versions, the name wasn't stored in a GameProfile object,
+                 * but as a String in the (final) name field of the EntityHuman class.
+                 * Final (non-static) fields can actually be modified by using
+                 * {@link java.lang.reflect.Field#setAccessible(boolean)}
+                 */
+                Field nameField = entityPlayer.getClass().getSuperclass().getDeclaredField("name");
+                nameField.setAccessible(true);
+                nameField.set(entityPlayer, name);
+            } else {
+                // Only 1.7+ servers will run this code
+                Object profile = entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
+                Field ff = profile.getClass().getDeclaredField("name");
+                ff.setAccessible(true);
+                ff.set(profile, name);
+            }
+            // In older versions, Bukkit.getOnlinePlayers() returned an Array instead of a Collection.
+            if (Bukkit.class.getMethod("getOnlinePlayers", new Class<?>[0]).getReturnType() == Collection.class) {
+                Collection<? extends Player> players = (Collection<? extends Player>) Bukkit.class.getMethod("getOnlinePlayers").invoke(null);
+                for (Player p : players) {
+                    p.hidePlayer(plugin, player);
+                    p.showPlayer(player);
+                }
+            } else {
+                Player[] players = ((Player[]) Bukkit.class.getMethod("getOnlinePlayers").invoke(null));
+                for (Player p : players) {
+                    p.hidePlayer(plugin, player);
+                    p.showPlayer(plugin, player);
+                }
+            }
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+            /*
+             * Merged all the exceptions. Less lines
+             */
+            e.printStackTrace();
         }
     }
 }

@@ -1,11 +1,11 @@
-name: Honority
-version: ${project.version}
+name: HonorityPlugin
+version: 1.0-alpha01
 main: me.lapis.honorityplugin.HonorityPlugin
 api-version: 1.13
-prefix: Honority
+prefix: HonorityPlugin
 softdepend: [Skript]
 authors: [sleepylapis]
-description: Add "Honority" status in server. Honority status can be referenced in Skript, by using own statements. This plugin can work as addon on Skript.
+description: Add "Honority" system in server. Honority status can be referenced in Skript, by using its own statements. This plugin can work as addon on Skript.
 website: https://lapisblog.me
 commands:
   honority:

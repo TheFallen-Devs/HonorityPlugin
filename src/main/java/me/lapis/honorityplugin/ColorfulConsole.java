@@ -45,13 +45,13 @@ public class ColorfulConsole {
             this.pluginDescriptionFile = pluginDescriptionFile;
 
             //// 플러그인 정보 관련 변수 설정
-            this.plugin_name = this.green + this.pluginDescriptionFile.getName() + this.white;
-            this.plugin_version = this.green + this.pluginDescriptionFile.getVersion() + this.white;
+            this.plugin_name = this.dgreen + this.pluginDescriptionFile.getName() + this.white;
+            this.plugin_version = this.dgreen + this.pluginDescriptionFile.getVersion() + this.white;
             this.plugin_descriptor = "[" + plugin_name + " v" + plugin_version + "] ";
         }
         else{
-            this.plugin_name = green + "LapisPlugin_Crashed" + white;
-            this.plugin_version = green + "Unknown" + white;
+            this.plugin_name = dgreen + "Plugin_Crashed" + white;
+            this.plugin_version = dgreen + "Unknown" + white;
             this.plugin_descriptor = "[" + plugin_name + " v" + plugin_version + "] ";
         }
     }

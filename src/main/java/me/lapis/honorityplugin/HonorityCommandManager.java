@@ -1,12 +1,16 @@
 package me.lapis.honorityplugin;
 
-import me.lapis.honorityplugin.honority.Honority;
+//Bukkit api classes
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+//Honority - honority manager class
+import me.lapis.honorityplugin.honority.Honority;
+
+//Arrays for method "toString"
 import java.util.Arrays;
 
 public class HonorityCommandManager implements CommandExecutor {
@@ -16,12 +20,13 @@ public class HonorityCommandManager implements CommandExecutor {
     public HonorityCommandManager(ColorfulConsole colorfulConsole, Honority pluginHonorityManager){
         this.colorfulConsole = colorfulConsole;
         this.honorityManager = pluginHonorityManager;
-        this.colorfulConsole.console(this.colorfulConsole.debug, "I received Honority object : " + this.honorityManager.toString());
+        //this.colorfulConsole.console(this.colorfulConsole.debug, "I received Honority object : " + this.honorityManager.toString());
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         this.colorfulConsole.console(this.colorfulConsole.debug, "[CommandManager] /" + label + ' ' + Arrays.toString(args) + " command has been executed!");
+
         if(label.equals("honority")) {
             return this.honority(sender, command, label, args);
         }
@@ -44,12 +49,25 @@ public class HonorityCommandManager implements CommandExecutor {
 
             // "/honority (subcommand)
             case 1:
-                if (args[0].equals("help")){
-                    this.colorfulConsole.console(this.colorfulConsole.debug,"`/honority help` help command with no args invoked!");
-                    return this.help_info(sender, "base");
-                } else {
-                    this.colorfulConsole.console(this.colorfulConsole.error,"Unknown Command!");
-                    return false;
+                boolean honorityLoadResult = false;
+                boolean honoritySaveResult = false;
+                switch (args[0]){
+                    case "help":
+                        this.colorfulConsole.console(this.colorfulConsole.debug,"`/honority help` help command with no args invoked!");
+                        return this.help_info(sender, "base");
+                    case "reload":
+                        honorityLoadResult = this.honorityManager.SaveAllHonorityInCollection(Bukkit.getOnlinePlayers());
+                        honoritySaveResult = this.honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
+                        return honorityLoadResult && honoritySaveResult;
+                    case "save":
+                        honoritySaveResult = this.honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
+                        return honoritySaveResult;
+                    case "load":
+                        honorityLoadResult = this.honorityManager.SaveAllHonorityInCollection(Bukkit.getOnlinePlayers());
+                        return honorityLoadResult;
+                    default:
+                        this.colorfulConsole.console(this.colorfulConsole.error,"Unknown Command!");
+                        return false;
                 }
             // "/honority (subcommand) arg1
             case 2:
@@ -164,7 +182,7 @@ public class HonorityCommandManager implements CommandExecutor {
     }
 
     private boolean help_info(CommandSender sender, String subcommand){
-        String show_desc = "/honority show (playername) : Show honority status of given player. [Only Player Can Use This Command]";
+        String show_desc = "/honority show (playername) : Show honority status of given player.";
         String set_desc = "/honority set (playername) (value) : Set player's honority value into given value. Only Number can be used on value. Negative number is acceptable.";
         String reset_desc = "/honority reset (playername) : Set player's honority value into initial value(normally, 0). This is an alias of /honority (playername) set 0";
         String add_desc = "/honority add (playername) (value) : Add given value into player's honority value. Only Number can be used on value. Negative number is acceptable.";
