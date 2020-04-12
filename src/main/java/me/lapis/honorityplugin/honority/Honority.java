@@ -6,11 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import me.lapis.honorityplugin.ColorfulConsole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 public class Honority {
@@ -212,6 +210,7 @@ public class Honority {
     public short SetPlayerHonority(UUID uuid, short newValue) throws NullPointerException, ArithmeticException{
         if (newValue<=150 && newValue>=-150){
             short oldValue = this.honorityDict.replace(uuid, newValue);
+            this.ShowHonorityOnPlayer(Bukkit.getPluginManager().getPlugin("HonrityPlugin"), Bukkit.getPlayer(uuid));
             return oldValue;
         } else {
           throw new ArithmeticException("New value of player's honority value is out of range!");
@@ -221,11 +220,10 @@ public class Honority {
 
     @SuppressWarnings("unchecked")
     public void ShowHonorityOnPlayer(Plugin plugin, Player player) {
-        this.colorfulConsole.console(this.colorfulConsole.log,"Applying honority data to players` nickname..");
         try{
-            this.colorfulConsole.console(this.colorfulConsole.debug,"Player : " + player.getName());
-            Method getHandle = player.getClass().getMethod("getHandle");
-            Object entityPlayer = getHandle.invoke(player);
+            this.colorfulConsole.console(this.colorfulConsole.log,"Applying honority status to player " + player.getName());
+            Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
+            this.colorfulConsole.console(this.colorfulConsole.debug,"(Object) #entityPlayer :  " + entityPlayer.getClass().getName());
             /*
              * These methods are no longer needed, as we can just access the
              * profile using handle.getProfile. Also, because we can just use
@@ -252,11 +250,11 @@ public class Honority {
                     + this.colorfulConsole.white + this.GetPlayerHonority(player.getUniqueId());
             this.colorfulConsole.console(this.colorfulConsole.debug,"New name of the player : " + this.colorfulConsole.white + newName);
 
-            // Only 1.7+ servers will run this code
+            // Only 1.7+ servers can run this code
             Object profile = entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
-            this.colorfulConsole.console(this.colorfulConsole.debug, "(Object)#profile : " + profile.toString());
+            this.colorfulConsole.console(this.colorfulConsole.debug, "(Object)#profile : " + profile.getClass().getName());
             Field ff = profile.getClass().getDeclaredField("name");
-            this.colorfulConsole.console(this.colorfulConsole.debug, "(Field)#ff (entityPlayer's declared field 'name' ) : " + ff.toString());
+            this.colorfulConsole.console(this.colorfulConsole.debug, "(Field)#ff (entityPlayer's declared field 'name' ) : " + ff.getName());
             ff.setAccessible(true);
             ff.set(entityPlayer, newName);
 
