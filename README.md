@@ -1,5 +1,5 @@
 # HonorityPlugin
-![Bukkit](https://img.shields.io/badge/Bukkit-1.15.2-orange)
+![Bukkit](https://img.shields.io/badge/Bukkit-1.15.2_R0.1_SNAPSHOT-orange)
 ![GitHub](https://img.shields.io/github/license/TheFallen-Devs/HonorityPlugin)
 
 Minecraft Bukkit plugin which adds one simple value, "honority"(same as honor) system in server.
