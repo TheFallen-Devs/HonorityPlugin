@@ -1,15 +1,25 @@
 package me.lapis.honorityplugin;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
-import me.lapis.honorityplugin.honority.Honority;
+//Java imports
+import java.io.IOException;
+import java.util.UUID;
+
+//Bukkit imports
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
-import java.util.Map;
+//Skript imports
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.registrations.Classes;
+
+//Honority imports
+import me.lapis.honorityplugin.honority.Honority;
+import me.lapis.honorityplugin.skript.functions.FuncHonority;
 
 public final class HonorityPlugin extends JavaPlugin {
 
@@ -22,7 +32,7 @@ public final class HonorityPlugin extends JavaPlugin {
     HonorityCommandManager cmdManager;
 
     //variables for Honority feature
-    Honority honorityManager;
+    static Honority honorityManager;
 
     //variables for Skript Addon feature
     private static HonorityPlugin instance;
@@ -55,7 +65,7 @@ public final class HonorityPlugin extends JavaPlugin {
         * Check if objects are same. <Debug>
         */
         //Initialize Honority Object
-        this.honorityManager = new Honority(this.colorfulConsole);
+        honorityManager = new Honority(this.colorfulConsole);
         //this.colorfulConsole.console(this.colorfulConsole.debug, "I have Honority object : " + this.honorityManager.toString());
 
         /* [ Register Event Manager class ]
@@ -64,7 +74,7 @@ public final class HonorityPlugin extends JavaPlugin {
 
         //Initialize plugin's EventManager class
         this.colorfulConsole.console(colorfulConsole.log, "[EventRegistration] Initializing EventManager...");
-        this.eventManager = new HonorityEventManager(this.colorfulConsole, this.honorityManager);
+        this.eventManager = new HonorityEventManager(this.colorfulConsole, honorityManager);
         this.colorfulConsole.console(colorfulConsole.log, "[EventRegistration] Initialized!");
 
         //Register EventManager class into plugin
@@ -78,7 +88,7 @@ public final class HonorityPlugin extends JavaPlugin {
 
         //Initialize plugin's command manager class
         this.colorfulConsole.console(colorfulConsole.log,  "[CommandRegistration] Initializing CommandManager...");
-        this.cmdManager = new HonorityCommandManager(this.colorfulConsole, this.honorityManager);
+        this.cmdManager = new HonorityCommandManager(this.colorfulConsole, honorityManager);
         this.colorfulConsole.console(colorfulConsole.log,  "[CommandRegistration] Initialized!");
 
         //Register commandManager into commands
@@ -102,18 +112,14 @@ public final class HonorityPlugin extends JavaPlugin {
         /* [ Load Honority Datas ]
          *  Load Honority Datas of currently online players
          */
-        this.honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
-        this.honorityManager.ShowHonorityOnAllPlayers(this, Bukkit.getOnlinePlayers());
+        honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
+        honorityManager.ShowHonorityOnAllPlayers(this, Bukkit.getOnlinePlayers());
 
 
         if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
-            // put all code related to Skript here : Skript addon function
-            try {
-                this.colorfulConsole.console(colorfulConsole.log,"Loading classes from me.lapis.honorityplugin.skript");
-                getAddonInstance().loadClasses("me.lapis.honorityplugin", "skript");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            // put all code related to Skript here : Skript addon functions
+            this.colorfulConsole.console(colorfulConsole.log,"Loading classes from me.lapis.honorityplugin.skript");
+            FunctionsRegister();
         }
 
     }
@@ -125,7 +131,7 @@ public final class HonorityPlugin extends JavaPlugin {
         /* [ Save Honority Datas ]
          *  Save Honority Datas of currently online players
          */
-        this.honorityManager.SaveAllHonorityInCollection(Bukkit.getOnlinePlayers());
+        honorityManager.SaveAllHonorityInCollection(Bukkit.getOnlinePlayers());
 
     }
 
@@ -146,5 +152,39 @@ public final class HonorityPlugin extends JavaPlugin {
             throw new IllegalStateException();
         }
         return instance;
+    }
+
+    public static Honority getHonorityManager() {
+        if (honorityManager == null) {
+            throw new IllegalStateException("Honority Manager has not been initialized!");
+        }
+        return honorityManager;
+    }
+
+    void FunctionsRegister(){
+        Functions.registerFunction(new FuncHonority("getPlayerHonority", new Parameter[]{
+                new Parameter<UUID>("uuid", Classes.getExactClassInfo(UUID.class), true, null)
+        }, true, honorityManager ){
+            @Override
+            public Number[] execute(FunctionEvent functionEvent, Object[][] objects) {
+                Bukkit.getLogger().info("objects : " + objects.toString());
+                UUID player_uuid = (UUID) objects[0][0];
+                return new Number[]{(Number) honorityManager.GetPlayerHonority(player_uuid)};
+            }
+        });
+        Functions.registerFunction(new FuncHonority("setPlayerHonority", new Parameter[]{
+                new Parameter<UUID>("uuid", Classes.getExactClassInfo(UUID.class), true, null),
+                new Parameter<Number>("value", Classes.getExactClassInfo(Number.class), true, null)
+        }, true, honorityManager ){
+
+            @Override
+            public Number[] execute(FunctionEvent functionEvent, Object[][] objects) {
+                Bukkit.getLogger().info("objects : " + objects.toString());
+                UUID player_uuid = (UUID) objects[0][0];
+                short newValue = (short) objects[1][0];
+                return new Number[]{(Number) honorityManager.SetPlayerHonority(player_uuid, newValue)};
+            }
+        });
+
     }
 }
