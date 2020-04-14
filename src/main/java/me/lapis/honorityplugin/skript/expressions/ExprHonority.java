@@ -18,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
 //For Interact with Honority system
 import me.lapis.honorityplugin.honority.Honority;
 
-import java.util.List;
-
 @Name("Get Honority Value")
 @Description("Number of ")
 @Examples({"set arrows stuck of player to 10",
@@ -28,14 +26,16 @@ import java.util.List;
         "delete arrows stuck of player"})
 @RequiredPlugins("Paper 1.15.2+")
 @Since("1.0")
-public class ExprGetHonority extends SimplePropertyExpression<Player, Integer> {
+public class ExprHonority extends SimplePropertyExpression<Player, Integer> {
 
     static Honority honorityManager;
     // you can call this expression like "honority of {_player}" or "{_player}'s honority"
     static {
-        PropertyExpression.register(ExprGetHonority.class, Integer.class, "honority", "players");
+        Bukkit.getLogger().info("[HonorityPlugin][Skript][ExprGetHonority] loading expression : [the] honority of %player% & %player%[`s] honority ");
+        PropertyExpression.register(ExprHonority.class, Integer.class, "honority", "players");
+
         try{
-            ExprGetHonority.honorityManager = (Honority) Bukkit.getPluginManager().getPlugin("HonorityPlugin").getClass().getMethod("getHonorityManager", null).invoke(null);
+            ExprHonority.honorityManager = (Honority) Bukkit.getPluginManager().getPlugin("HonorityPlugin").getClass().getMethod("getHonorityManager", (Class<?>) null).invoke(null);
         }catch (Exception e){
             Bukkit.getLogger().severe("Can't get Honority Manager from plugin! The Skript-API expressions will not work properly!");
         }

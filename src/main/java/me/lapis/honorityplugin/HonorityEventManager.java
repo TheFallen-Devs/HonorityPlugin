@@ -34,7 +34,7 @@ public class HonorityEventManager implements Listener {
             this.colorfulConsole.console(this.colorfulConsole.log, "Cannot load " + e.getPlayer().getName() + "`s honority data!");
         }
 
-        this.honorityManager.ShowHonorityOnPlayer(Bukkit.getPluginManager().getPlugin("HonorityPlugin"), player);
+        //this.honorityManager.ShowHonorityOnPlayer(Bukkit.getPluginManager().getPlugin("HonorityPlugin"), player);
     
         this.colorfulConsole.console(this.colorfulConsole.debug,"[LoadPlayerHonority] Change player's name from " + player.getName());
         short playerHonorityValue = this.honorityManager.GetPlayerHonority(player.getUniqueId());
@@ -51,7 +51,11 @@ public class HonorityEventManager implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e){
         this.colorfulConsole.console(this.colorfulConsole.log, "A Player " + e.getPlayer().getName() + " has quit the server!");
         UUID playerUUID = e.getPlayer().getUniqueId();
-        boolean result = this.honorityManager.SavePlayerHonority(playerUUID);
+        boolean honoritySaveResult = this.honorityManager.SavePlayerHonority(playerUUID);
+        if(honoritySaveResult)
+            this.colorfulConsole.console(this.colorfulConsole.log, "Successfully saved " + e.getPlayer().getName() + "`s honority data!");
+        else
+            this.colorfulConsole.console(this.colorfulConsole.log, "Failed to save " + e.getPlayer().getName() + "`s honority data...");
 
     }
 }

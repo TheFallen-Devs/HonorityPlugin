@@ -2,9 +2,9 @@ package me.lapis.honorityplugin;
 
 //Java imports
 import java.io.IOException;
-import java.util.UUID;
 
 //Bukkit imports
+import me.lapis.honorityplugin.skript.functions.FuncSetPlayerHonority;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,14 +12,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 //Skript imports
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.registrations.Classes;
 
 //Honority imports
 import me.lapis.honorityplugin.honority.Honority;
-import me.lapis.honorityplugin.skript.functions.FuncHonority;
+import me.lapis.honorityplugin.skript.functions.FuncGetPlayerHonority;
 
 public final class HonorityPlugin extends JavaPlugin {
 
@@ -113,13 +110,21 @@ public final class HonorityPlugin extends JavaPlugin {
          *  Load Honority Datas of currently online players
          */
         honorityManager.LoadAllHonorityInCollection(Bukkit.getOnlinePlayers());
-        honorityManager.ShowHonorityOnAllPlayers(this, Bukkit.getOnlinePlayers());
+        //honorityManager.ShowHonorityOnAllPlayers(this, Bukkit.getOnlinePlayers());
 
 
         if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
             // put all code related to Skript here : Skript addon functions
-            this.colorfulConsole.console(colorfulConsole.log,"Loading classes from me.lapis.honorityplugin.skript");
-            FunctionsRegister();
+            this.colorfulConsole.console(colorfulConsole.info,"Found a plugin, Skript. Loading classes from me.lapis.honorityplugin.skript");
+            try {
+                //this.colorfulConsole.console(colorfulConsole.info,"Try to load the `skript.expressions` subpackage");
+                //addonInstance.loadClasses("me.lapis.honorityplugin", "skript.expressions");
+
+                this.colorfulConsole.console(this.colorfulConsole.log, "Try to register Skript addon functions");
+                SkriptFunctionsRegister();
+            } catch (Exception e){
+                this.colorfulConsole.console(this.colorfulConsole.log, "An error occured! :\nCause :\n" + e.getCause() + "\nError Message :\n" + e.getMessage());
+            }
         }
 
     }
@@ -161,30 +166,15 @@ public final class HonorityPlugin extends JavaPlugin {
         return honorityManager;
     }
 
-    void FunctionsRegister(){
-        Functions.registerFunction(new FuncHonority("getPlayerHonority", new Parameter[]{
-                new Parameter<UUID>("uuid", Classes.getExactClassInfo(UUID.class), true, null)
-        }, true, honorityManager ){
-            @Override
-            public Number[] execute(FunctionEvent functionEvent, Object[][] objects) {
-                Bukkit.getLogger().info("objects : " + objects.toString());
-                UUID player_uuid = (UUID) objects[0][0];
-                return new Number[]{(Number) honorityManager.GetPlayerHonority(player_uuid)};
-            }
-        });
-        Functions.registerFunction(new FuncHonority("setPlayerHonority", new Parameter[]{
-                new Parameter<UUID>("uuid", Classes.getExactClassInfo(UUID.class), true, null),
-                new Parameter<Number>("value", Classes.getExactClassInfo(Number.class), true, null)
-        }, true, honorityManager ){
+    void SkriptFunctionsRegister(){
+        this.colorfulConsole.console(this.colorfulConsole.log, "Registering Skript addon functions");
 
-            @Override
-            public Number[] execute(FunctionEvent functionEvent, Object[][] objects) {
-                Bukkit.getLogger().info("objects : " + objects.toString());
-                UUID player_uuid = (UUID) objects[0][0];
-                short newValue = (short) objects[1][0];
-                return new Number[]{(Number) honorityManager.SetPlayerHonority(player_uuid, newValue)};
-            }
-        });
+        this.colorfulConsole.console(this.colorfulConsole.log, "Registering function : getPlayerHonority(uuid)");
+        Functions.registerFunction(new FuncGetPlayerHonority(honorityManager));
+
+
+        this.colorfulConsole.console(this.colorfulConsole.log, "Registering function : setPlayerHonority(uuid, number)");
+        Functions.registerFunction(new FuncSetPlayerHonority(honorityManager));
 
     }
 }
